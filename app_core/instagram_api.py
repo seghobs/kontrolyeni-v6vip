@@ -302,9 +302,10 @@ def fetch_comment_usernames(media_id, token_record, min_id=None, progress_callba
             try:
                 json_data = json.loads(line)
                 for comment in json_data.get("comments", []):
-                    username = comment.get("user", {}).get("username")
-                    if username:
-                        usernames.add(username)
+                    uname = comment.get("user", {}).get("username")
+                    text = comment.get("text", "")
+                    if uname:
+                        usernames.add((uname, text))
             except json.JSONDecodeError:
                 continue
 
@@ -325,7 +326,7 @@ def fetch_comment_usernames(media_id, token_record, min_id=None, progress_callba
     if page_count >= MAX_COMMENT_PAGES:
         logger.warning("Maksimum sayfa limitine ulasildi (%d)", MAX_COMMENT_PAGES)
 
-    return {"ok": True, "status": 200, "usernames": usernames}
+    return {"ok": True, "status": 200, "comments": list(usernames)}
 
 
 def fetch_liker_usernames(media_id, token_record, progress_callback=None):

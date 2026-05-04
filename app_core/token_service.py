@@ -84,13 +84,15 @@ def fetch_comments_with_failover(media_id, progress_callback=None, token_record=
     max_retries = 10
     retry_count = 0
     tried_usernames = set()
-    usernames = set()
+    # usernames can be a set of strings or a list of tuples (username, text)
+    comments_data = []
+    
     if token_record is None:
         token_record = get_working_active_token()
 
     while retry_count < max_retries:
         if not token_record or not token_record.get("token"):
-            return set()
+            return []
 
         current_username = token_record.get("username", "bilinmeyen")
         logger.info("Token kullaniliyor: @%s", current_username)
@@ -99,16 +101,16 @@ def fetch_comments_with_failover(media_id, progress_callback=None, token_record=
             result = fetch_comment_usernames(media_id, token_record, progress_callback=progress_callback)
         except Exception as error:
             logger.error("Yorum cekme hatasi: %s", error)
-            result = {"ok": False, "status": 500, "usernames": usernames}
+            result = {"ok": False, "status": 500, "comments": comments_data}
 
-        usernames = result.get("usernames", set())
+        comments_data = result.get("comments", [])
 
         if result.get("ok"):
-            logger.info("Basari! Toplam %d kullanici bulundu.", len(usernames))
-            return usernames
+            logger.info("Basari! Toplam %d yorum bulundu.", len(comments_data))
+            return comments_data
 
         if result.get("rate_limited"):
-            return {"rate_limited": True, "usernames": usernames}
+            return {"rate_limited": True, "comments": comments_data}
 
         status_code = result.get("status")
         if status_code in [401, 403]:
@@ -125,7 +127,7 @@ def fetch_comments_with_failover(media_id, progress_callback=None, token_record=
         if not token_record:
             break
 
-    return usernames
+    return comments_data
 
 
 def fetch_likers_with_failover(media_id, progress_callback=None, token_record=None):

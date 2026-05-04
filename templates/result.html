@@ -14,445 +14,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            /* Premium Dark Mode Colors */
-            --bg-deep: #0f111a;
-            --bg-card: #1e2130;
-            --bg-hover: #292d3e;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --accent-primary: #6366f1; /* Indigo */
-            --accent-hover: #4f46e5;
-            --success-color: #10b981;
-            --success-bg: rgba(16, 185, 129, 0.1);
-            --danger-color: #ef4444;
-            --danger-bg: rgba(239, 68, 68, 0.1);
-            --warning-color: #f59e0b;
-            --warning-bg: rgba(245, 158, 11, 0.1);
-            --border-color: rgba(255, 255, 255, 0.08);
-            --glass-blur: blur(12px);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #000000 0%, #0a0a1a 50%, #0d0d1f 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px 10px;
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at 20% 50%, rgba(30, 30, 60, 0.15) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 80%, rgba(20, 20, 50, 0.15) 0%, transparent 50%);
-            pointer-events: none;
-        }
-
-        /* Responsive container */
-        .container {
-            max-width: 100%;
-            padding: 0 5px;
-        }
-
-        .result-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            padding: 24px 16px;
-            position: relative;
-            z-index: 1;
-            width: 100%;
-            max-width: 100%;
-        }
-
-        .result-card h1 {
-            color: #ffffff;
-            font-weight: 700;
-            margin-bottom: 20px;
-            font-size: 28px;
-            text-align: center;
-            letter-spacing: -0.5px;
-        }
-
-        /* Responsive text sizes */
-        h5, .h5 {
-            font-size: 15px;
-            font-weight: 600;
-        }
-        
-        .username-text {
-            font-size: 14px;
-            color: var(--text-primary);
-        }
-
-        .btn {
-            font-size: 13px;
-            padding: 10px 16px;
-            white-space: normal;
-            word-break: break-word;
-            border-radius: 10px;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .btn-sm {
-            font-size: 12px;
-            padding: 6px 12px;
-            border-radius: 8px;
-        }
-
-        /* Responsive list items */
-        .list-group {
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid var(--border-color);
-            background: rgba(0,0,0,0.1);
-        }
-        .list-group-item {
-            padding: 14px 16px;
-            font-size: 14px;
-            background: transparent;
-            border-color: var(--border-color);
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            transition: background 0.2s ease;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .list-group-item:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-
-        /* Search input styling */
-        .search-container {
-            position: relative;
-        }
-        .search-input {
-            width: 100%;
-            padding: 12px 16px 12px 42px;
-            font-size: 13px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.08); /* form-control uyumu */
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
-            transition: all 0.3s ease;
-        }
-        .search-input:focus {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: #7877c6;
-            outline: none;
-            box-shadow: 0 0 0 0.2rem rgba(120, 119, 198, 0.25);
-        }
-        .search-input::placeholder {
-            color: var(--text-secondary);
-        }
-        .search-icon {
-            position: absolute;
-            left: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        /* Mobile-first responsive styles */
-        @media (min-width: 576px) {
-            body { padding: 30px 15px; }
-            .result-card { padding: 30px 24px; border-radius: 24px; }
-            .result-card h1 { font-size: 26px; }
-        }
-
-        @media (min-width: 768px) {
-            body { padding: 40px 20px; }
-            .result-card { padding: 40px; border-radius: 24px; }
-            .result-card h1 { font-size: 30px; }
-            .username-text { font-size: 15px; }
-            .btn { font-size: 14px; }
-        }
-
-        @media (min-width: 992px) {
-            .container { max-width: 850px; }
-            .result-card { padding: 40px 48px; }
-        }
-
-        /* Card Sections Headers */
-        .link-card, .eksikler-section-header, .completed-section-header {
-            padding: 16px !important;
-            background: rgba(255, 255, 255, 0.03) !important;
-            border-radius: 14px !important;
-            border: 1px solid var(--border-color) !important;
-            transition: background 0.2s ease, border-color 0.2s ease;
-            cursor: pointer;
-        }
-        @media (hover: hover) {
-            .eksikler-section-header:hover, .completed-section-header:hover {
-                background: rgba(255,255,255, 0.06) !important;
-                border-color: rgba(255,255,255, 0.15) !important;
-            }
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, #252538 0%, #1a1a2e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .btn-secondary:hover {
-            background: linear-gradient(135deg, #252538 0%, #1a1a2e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-        
-        .btn-admin {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s ease;
-        }
-
-        .btn-admin:hover {
-            background: linear-gradient(135deg, #252538 0%, #1a1a2e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        .notification {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(20px);
-            background: rgba(16, 185, 129, 0.1);
-            backdrop-filter: blur(12px);
-            color: var(--text-primary);
-            padding: 16px 24px;
-            border-radius: 14px;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            min-width: 320px;
-            max-width: 90%;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-        }
-
-        .notification.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .notification i {
-            margin-right: 10px;
-            color: #10b981;
-        }
-
-        /* Modal Styles */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 2000;
-            animation: fadeIn 0.2s ease;
-        }
-
-        .modal-overlay.show {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--bg-card);
-            border-radius: 24px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            padding: 32px;
-            max-width: 420px;
-            width: 90%;
-            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .modal-header {
-            color: #ffffff;
-            font-size: 22px;
-            font-weight: 600;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .modal-header i {
-            color: var(--warning-color);
-        }
-
-        .modal-body {
-            color: var(--text-secondary);
-            font-size: 15px;
-            margin-bottom: 28px;
-            line-height: 1.6;
-        }
-
-        .modal-username {
-            color: var(--accent-primary);
-            font-weight: 600;
-        }
-
-        .modal-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .modal-btn {
-            padding: 14px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .modal-btn-cancel {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-btn-cancel:hover {
-            background: linear-gradient(135deg, #252538 0%, #1a1a2e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .modal-btn-confirm {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #fff;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-        }
-
-        .modal-btn-confirm:hover {
-            background: linear-gradient(135deg, #252538 0%, #1a1a2e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { 
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .btn-exemption {
-            background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 6px 12px;
-            font-weight: 600;
-            color: #fff;
-            font-size: 13px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        .btn-exemption:hover {
-            background: linear-gradient(135deg, #252538 0%, #1a1a2e 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-
-        .btn-exemption:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        .username-text {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            min-width: 0;
-        }
-        .completed-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 999px;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.4);
-            color: #6ee7b7;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}?v={{ range(1, 99999) | random }}">
 </head>
 <body data-rate-limited='{{ "true" if rate_limited else "false" }}'>
     {% if rate_limited %}
-    <div class="alert alert-warning text-center mx-3 mt-3 shadow-lg" style="background: var(--warning-bg); border: 1px solid rgba(245,158,11,0.3); color: var(--warning-color); border-radius: 16px;">
+    <div class="alert alert-premium-warning text-center mx-3 mt-3 shadow-lg">
         <i class="fas fa-clock me-2"></i>Çok fazla istek; Instagram geçici sınır koydu. Lütfen 10–15 dakika bekleyip tekrar deneyin.
     </div>
     {% endif %}
@@ -469,21 +35,21 @@
                     <div id="sortable-cards-container">
                     {% if all_commented and all_commented|length > 0 %}
                     <div class="mb-4 sortable-main-card">
-                        <div class="completed-section-header shadow-sm" onclick="toggleCompletedSection()" style="cursor: pointer; padding: 16px; background: rgba(0,0,0,0.2); border-radius: 16px; border: 1px solid rgba(16, 185, 129, 0.2); transition: background 0.3s;">
+                        <div class="completed-section-header shadow-sm" onclick="toggleCompletedSection()">
                             <div class="d-flex justify-content-between align-items-center w-100">
-                                <i class="fas fa-grip-vertical me-3 drag-handle" style="color: rgba(255,255,255,0.2); font-size: 18px; cursor: grab;" title="Tut ve Sürükle" onclick="event.stopPropagation()"></i>
-                                <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 0; padding-right: 15px;">
+                                <i class="fas fa-grip-vertical me-3 drag-handle" title="Tut ve Sürükle" onclick="event.stopPropagation()"></i>
+                                <div class="header-text-container">
                                     <div class="d-flex align-items-center flex-wrap gap-2">
-                                        <strong style="color: #ffffff; font-size: 15px; letter-spacing: 0.3px; line-height: 1.4; word-break: break-word;">
+                                        <strong class="header-title-main">
                                             <i class="fas fa-user-check me-1" style="color: var(--success-color);"></i>Tamamlayan Kullanıcılar
                                         </strong>
-                                        <span class="badge" style="background: rgba(16, 185, 129, 0.15) !important; color: #6ee7b7 !important; border: 1px solid rgba(16, 185, 129, 0.3); font-size: 12px; padding: 4px 8px; border-radius: 6px;">
+                                        <span class="badge badge-success-outline">
                                             {{ all_commented|length }} kişi
                                         </span>
                                     </div>
                                 </div>
-                                <div class="d-flex justify-content-end align-items-center" style="flex-shrink: 0; padding-left: 5px;">
-                                    <i id="completedSectionIcon" class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 18px; transition: transform 0.3s ease;"></i>
+                                <div class="d-flex justify-content-end align-items-center flex-shrink-0 ps-1">
+                                    <i id="completedSectionIcon" class="fas fa-chevron-down chevron-icon"></i>
                                 </div>
                             </div>
                         </div>
@@ -499,9 +65,16 @@
                             <ul class="list-group list-group-flush" id="completedList">
                                 {% for user in all_commented %}
                                 <li class="list-group-item" data-username="{{ user }}">
-                                    <span class="username-text">
-                                        <i class="fas fa-user-check me-2"></i><strong>{{ user }}</strong>
-                                    </span>
+                                    <div class="d-flex align-items-center justify-content-between w-100">
+                                        <span class="username-text">
+                                            <i class="fas fa-user-check me-2"></i><strong>{{ user }}</strong>
+                                        </span>
+                                        {% if duplicate_comment_users and user in duplicate_comment_users %}
+                                        <span class="badge badge-warning-outline" title="Bu kullanıcı birden fazla postta aynı yorumu kullanmış!">
+                                            <i class="fas fa-clone me-1"></i>Kopya Yorum
+                                        </span>
+                                        {% endif %}
+                                    </div>
                                 </li>
                                 {% endfor %}
                             </ul>
@@ -510,37 +83,37 @@
                     {% endif %}
 
                     {% for item in links %}
-                    <div class="mb-4 link-card shadow-sm sortable-main-card" style="border-radius: 16px; background: rgba(0,0,0,0.2);">
+                    <div class="mb-4 link-card shadow-sm sortable-main-card">
                         <div class="eksikler-section-header" onclick="toggleEksiklerSection({{ loop.index }})">
                             <div class="d-flex justify-content-between align-items-center w-100">
-                                <i class="fas fa-grip-vertical me-3 drag-handle" style="color: rgba(255,255,255,0.2); font-size: 18px; cursor: grab;" title="Tut ve Sürükle" onclick="event.stopPropagation()"></i>
-                                <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 0; padding-right: 15px;">
+                                <i class="fas fa-grip-vertical me-3 drag-handle" title="Tut ve Sürükle" onclick="event.stopPropagation()"></i>
+                                <div class="header-text-container">
                                         <div class="d-flex align-items-center flex-wrap gap-2">
-                                            <strong style="color: #ffffff; font-size: 15px; letter-spacing: 0.3px; line-height: 1.4; word-break: break-word;">
+                                            <strong class="header-title-main">
                                                 <i class="fas fa-user-minus me-1" style="color: var(--danger-color);"></i>{% if check_likes %}Beğenmeyenler{% else %}Eksikler (Yorum Atmayanlar){% endif %}
                                             </strong>
-                                            <span id="elemanSayisi-{{ loop.index }}" class="badge" style="background: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 12px; padding: 4px 8px; border-radius: 6px;"></span>
+                                            <span id="elemanSayisi-{{ loop.index }}" class="badge badge-danger-outline"></span>
                                         </div>
                                         
-                                        <div class="d-flex align-items-center flex-wrap gap-2">
+                                        <div class="d-flex align-items-center flex-wrap gap-2 mt-1">
                                             {% if item.sender %}
-                                            <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); font-size: 12px; font-weight: 500; border-radius: 6px; padding: 4px 8px;">
+                                            <span class="badge badge-indigo-outline">
                                                 <span class="d-none d-sm-inline" style="color: #cbd5e1; font-weight: 400; margin-right: 4px;">Gönderi Sahibi:</span><i class="fas fa-user-circle d-inline d-sm-none me-1"></i>@{{ item.sender }}
                                             </span>
                                             {% endif %}
                                             
-                                            <a href="{{ item.post_link }}" target="_blank" onclick="event.stopPropagation();" class="btn btn-sm" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--accent-primary); font-size: 12px; padding: 4px 8px; border-radius: 6px;" title="Linke Git">
+                                            <a href="{{ item.post_link }}" target="_blank" onclick="event.stopPropagation();" class="btn btn-sm btn-link-action" title="Linke Git">
                                                 <i class="fas fa-external-link-alt"></i><span class="d-none d-sm-inline ms-1">Link</span>
                                             </a>
                                             
-                                            <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); window.copyLink('{{ item.post_link }}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); font-size: 12px; padding: 4px 8px; border-radius: 6px;" title="Linki kopyala">
+                                            <button type="button" class="btn btn-sm btn-copy-action" onclick="event.stopPropagation(); window.copyLink('{{ item.post_link }}')" title="Linki kopyala">
                                                 <i class="fas fa-copy"></i>
                                             </button>
                                         </div>
                                     </div>
                                     
-                                    <div class="d-flex justify-content-end align-items-center" style="flex-shrink: 0; padding-left: 5px;">
-                                        <i id="eksiklerIcon-{{ loop.index }}" class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 18px; transition: transform 0.3s ease;"></i>
+                                    <div class="d-flex justify-content-end align-items-center flex-shrink-0 ps-1">
+                                        <i id="eksiklerIcon-{{ loop.index }}" class="fas fa-chevron-down chevron-icon"></i>
                                     </div>
                                 </div>
                             </div>
@@ -575,16 +148,16 @@
                         {% endfor %}
                     
                     {% if user_missing_posts %}
-                    <div class="mb-4 shadow-sm sortable-main-card" style="border-radius: 16px; background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border-color); overflow: hidden;">
-                        <div class="p-4" style="cursor: pointer; transition: background 0.2s;" onclick="const content = document.getElementById('detayliRaporContent'); const icon = document.getElementById('detayliRaporIcon'); if(content.style.display === 'none'){ content.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { content.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
+                    <div class="mb-4 shadow-sm sortable-main-card detayli-rapor-card">
+                        <div class="p-4" style="cursor: pointer;" onclick="const content = document.getElementById('detayliRaporContent'); const icon = document.getElementById('detayliRaporIcon'); if(content.style.display === 'none'){ content.style.display = 'block'; icon.style.transform = 'rotate(180deg)'; } else { content.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
                             <div class="d-flex justify-content-between align-items-center w-100">
-                                <i class="fas fa-grip-vertical me-3 drag-handle" style="color: rgba(255,255,255,0.2); font-size: 18px; cursor: grab;" title="Tut ve Sürükle" onclick="event.stopPropagation()"></i>
-                                <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 0; padding-right: 15px;">
+                                <i class="fas fa-grip-vertical me-3 drag-handle" title="Tut ve Sürükle" onclick="event.stopPropagation()"></i>
+                                <div class="header-text-container">
                                     <div class="d-flex align-items-center flex-wrap gap-2">
                                         <strong style="color: #ffffff; font-size: 18px; letter-spacing: 0.3px; line-height: 1.4; word-break: break-word;">
                                             <i class="fas fa-user-times me-2" style="color: var(--danger-color);"></i>Eksik Kullanıcı Detaylı Rapor
                                         </strong>
-                                        <span class="badge" style="background: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 12px; padding: 4px 8px; border-radius: 6px;">
+                                        <span class="badge badge-danger-outline">
                                             {{ user_missing_posts|length }} eksik kullanıcı
                                         </span>
                                     </div>
@@ -592,47 +165,47 @@
                                         Aşağıda her eksik kullanıcının hangi postlarda eksik olduğu gösterilmektedir.
                                     </div>
                                 </div>
-                                <div class="d-flex justify-content-end align-items-center" style="flex-shrink: 0; padding-left: 5px;">
-                                    <i id="detayliRaporIcon" class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 18px; transition: transform 0.3s ease;"></i>
+                                <div class="d-flex justify-content-end align-items-center flex-shrink-0 ps-1">
+                                    <i id="detayliRaporIcon" class="fas fa-chevron-down chevron-icon"></i>
                                 </div>
                             </div>
                         </div>
                         <div id="detayliRaporContent" class="p-4 pt-1" style="display: none;">
                         {% for username, posts in user_missing_posts.items() %}
-                        <div class="mb-4" style="background: linear-gradient(145deg, rgba(30,33,48,0.6) 0%, rgba(15,17,26,0.8) 100%); border-radius: 16px; border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.2); overflow: hidden;">
-                            <div class="p-4" style="cursor: pointer; transition: background 0.3s;" onclick="const content = document.getElementById('missing-posts-{{ username }}'); const icon = document.getElementById('user-icon-{{ loop.index }}'); if(content.style.display === 'none'){ content.style.display = 'flex'; icon.style.transform = 'rotate(180deg)'; } else { content.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
-                                <div class="d-flex justify-content-between align-items-center w-100 pb-3" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                    <div class="d-flex flex-column gap-2" style="flex: 1; min-width: 0; padding-right: 15px;">
+                        <div class="user-detail-card">
+                            <div class="p-4" style="cursor: pointer;" onclick="const content = document.getElementById('missing-posts-{{ username }}'); const icon = document.getElementById('user-icon-{{ loop.index }}'); if(content.style.display === 'none'){ content.style.display = 'flex'; icon.style.transform = 'rotate(180deg)'; } else { content.style.display = 'none'; icon.style.transform = 'rotate(0deg)'; }">
+                                <div class="d-flex justify-content-between align-items-center w-100 pb-3 user-detail-header">
+                                    <div class="header-text-container">
                                         <div class="d-flex align-items-center flex-wrap gap-2">
-                                            <strong style="color: #ffffff; font-size: 15px; letter-spacing: 0.3px; line-height: 1.4; word-break: break-word;">
+                                            <strong class="header-title-main">
                                                 <i class="fas fa-user-astronaut me-1" style="color: var(--warning-color);"></i>@{{ username }}
                                             </strong>
-                                            <span class="badge" style="background: rgba(239, 68, 68, 0.15) !important; color: #fca5a5 !important; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 12px; padding: 4px 8px; border-radius: 6px;">
+                                            <span class="badge badge-danger-outline">
                                                 <i class="fas fa-exclamation-circle me-1"></i>{{ posts|length }} eksik işlem
                                             </span>
                                         </div>
                                         
-                                        <div class="d-flex align-items-center flex-wrap gap-2">
-                                            <button type="button" class="btn btn-sm" onclick="event.stopPropagation(); window.copyUserMissingPosts('{{ username }}')" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-secondary); font-size: 12px; padding: 4px 8px; border-radius: 6px;" title="Tüm Linkleri Kopyala">
+                                        <div class="d-flex align-items-center flex-wrap gap-2 mt-1">
+                                            <button type="button" class="btn btn-sm btn-copy-action" onclick="event.stopPropagation(); window.copyUserMissingPosts('{{ username }}')" title="Tüm Linkleri Kopyala">
                                                 <i class="fas fa-copy"></i><span class="d-none d-sm-inline ms-1" style="padding-left: 2px;">Tüm Linkleri Kopyala</span>
                                             </button>
                                         </div>
                                     </div>
                                     
-                                    <div class="d-flex justify-content-end align-items-center" style="flex-shrink: 0; padding-left: 5px;">
-                                        <i id="user-icon-{{ loop.index }}" class="fas fa-chevron-down" style="color: #cbd5e1; font-size: 18px; transition: transform 0.3s ease;"></i>
+                                    <div class="d-flex justify-content-end align-items-center flex-shrink-0 ps-1">
+                                        <i id="user-icon-{{ loop.index }}" class="fas fa-chevron-down chevron-icon"></i>
                                     </div>
                                 </div>
                                 
                                 <div id="missing-posts-{{ username }}" class="row g-2 mt-3" style="display: none;">
                                     {% for post in posts %}
                                     <div class="col-12">
-                                        <div style="background: rgba(0,0,0,0.25); border-radius: 10px; padding: 12px 16px; border: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-between; align-items: center; transition: background 0.2s ease;" onmouseover="this.style.background='rgba(0,0,0,0.4)'" onmouseout="this.style.background='rgba(0,0,0,0.25)'">
-                                            <div style="display: flex; align-items: center; gap: 12px; overflow: hidden;">
-                                                <div style="background: rgba(99,102,241,0.1); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                        <div class="post-link-item">
+                                            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                                <div class="instagram-icon-box">
                                                     <i class="fab fa-instagram" style="color: #818cf8; font-size: 14px;"></i>
                                                 </div>
-                                                <a href="{{ post }}" target="_blank" onclick="event.stopPropagation();" style="color: #cbd5e1; text-decoration: none; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 0.2s;" onmouseover="this.style.color='#ffffff'" onmouseout="this.style.color='#cbd5e1'">
+                                                <a href="{{ post }}" target="_blank" onclick="event.stopPropagation();" class="post-link-anchor">
                                                     {{ post }}
                                                 </a>
                                             </div>
@@ -699,12 +272,7 @@
             }
         });
     </script>
-    <style>
-        .sortable-ghost { opacity: 0.5; background: rgba(99, 102, 241, 0.05) !important; border-radius: 16px; border: 1px dashed rgba(99, 102, 241, 0.4) !important;}
-        .sortable-drag { cursor: grabbing !important; transform: scale(1.02); box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important; }
-        .drag-handle:hover { color: #ffffff !important; transform: scale(1.1); }
-        .drag-handle { transition: all 0.2s ease; }
-    </style>
+
     <script src="{{ url_for('static', filename='js/result.js') }}?v={{ range(1, 99999) | random }}"></script>
 </body>
 

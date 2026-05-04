@@ -152,15 +152,18 @@ function copyCompletedList() {
 }
 
 function filterEksiklerList(index) {
-    const card = document.querySelector(`.link-card:nth-of-type(${index})`);
-    if (!card) return;
-    const inputEl = card.querySelector(".search-input");
-    const input = inputEl ? inputEl.value.toLowerCase() : "";
     const list = document.getElementById(`eksiklerListesi-${index}`);
     if (!list) return;
+    
+    const card = list.closest('.link-card');
+    if (!card) return;
+    
+    const inputEl = card.querySelector(".search-input");
+    const input = inputEl ? inputEl.value.toLowerCase() : "";
     const listItems = list.getElementsByTagName("li");
 
     for (let i = 0; i < listItems.length; i += 1) {
+
         const item = listItems[i];
         const textValue = item.innerText.toLowerCase();
         item.style.display = textValue.includes(input) ? "" : "none";

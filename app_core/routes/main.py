@@ -101,6 +101,7 @@ def index():
         links_raw = link.split("\n")
         all_commented = set()
         user_missing_posts = {}  # {username: [post_link1, post_link2, ...]}
+        user_comments_map = {}  # {username: [comment_text1, comment_text2, ...]}
         grup_uye = request.form.get("grup_uye", "")
         grup_uye_kullanicilar = {normalize_username(u) for u in grup_uye.split() if u.strip()}
         link_results = []
@@ -154,14 +155,26 @@ def index():
                 all_result = fetch_likers_with_failover(media_id, token_record=working_token)
             else:
                 all_result = fetch_comments_with_failover(media_id, token_record=working_token)
+            
             if isinstance(all_result, dict) and all_result.get("rate_limited"):
                 return render_template(
                     "form.html",
                     token_error_message="Cok fazla istek; Instagram gecici olarak sinir koydu. Lutfen bir sure bekleyin.",
                 )
             
-            commenters = all_result if isinstance(all_result, set) else all_result.get("usernames", set())
-            commenters_normalized = {normalize_username(u) for u in commenters if u}
+            # Likers result is a set of usernames, Comments result is a list of tuples (username, text)
+            if check_likes:
+                commenters_normalized = {normalize_username(u) for u in (all_result if isinstance(all_result, set) else all_result.get("usernames", set()))}
+            else:
+                comments_list = all_result if isinstance(all_result, list) else all_result.get("comments", [])
+                commenters_normalized = set()
+                for uname, text in comments_list:
+                    norm_uname = normalize_username(uname)
+                    commenters_normalized.add(norm_uname)
+                    if norm_uname not in user_comments_map:
+                        user_comments_map[norm_uname] = []
+                    user_comments_map[norm_uname].append(text)
+            
             all_commented.update(commenters_normalized)
             
             # Get global + per-post exemptions
@@ -200,6 +213,20 @@ def index():
         if not link_results:
             return render_template("form.html", token_error_message="Gecerli link bulunamadi.")
 
+        # Kopya yorum tespiti
+        duplicate_comment_users = set()
+        for user, comments in user_comments_map.items():
+            if len(comments) > 1:
+                # Eger ayni yorum metni birden fazla kez kullanilmissa
+                seen = set()
+                for c in comments:
+                    if not c: continue
+                    c_clean = c.strip().lower()
+                    if c_clean in seen:
+                        duplicate_comment_users.add(user)
+                        break
+                    seen.add(c_clean)
+
         # Collect all exempted users from all links + global exemptions
         global_exempted = get_global_exempted_users()
         all_exempted = global_exempted.copy()
@@ -219,6 +246,7 @@ def index():
             all_commented=list(tamamlayanlar_genel),
             group=list(grup_uye_kullanicilar),
             user_missing_posts=user_missing_formatted,
+            duplicate_comment_users=list(duplicate_comment_users),
             check_likes=check_likes)
 
     refresh = request.args.get("refresh") == "1"

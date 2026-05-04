@@ -16,6 +16,28 @@ window.updateUserCount = updateUserCount;
 // Global değişken - seçili grup ID'si
 let currentThreadId = '';
 
+function getFavorites() {
+    const favs = localStorage.getItem('fav_groups');
+    return favs ? JSON.parse(favs) : [];
+}
+
+function toggleFavorite(e, threadId) {
+    e.stopPropagation();
+    let favs = getFavorites();
+    const index = favs.indexOf(threadId);
+    
+    if (index > -1) {
+        favs.splice(index, 1);
+    } else {
+        favs.push(threadId);
+    }
+    
+    localStorage.setItem('fav_groups', JSON.stringify(favs));
+    
+    // UI'ı yeniden yükle (sıralama için)
+    loadGroups();
+}
+
 function loadGroups() {
     const select = document.getElementById("groupSelect");
     const dropdownText = document.querySelector('#groupDropdown .dropdown-text');
@@ -34,10 +56,26 @@ function loadGroups() {
             
             if (data.groups && data.groups.length > 0) {
                 dropdownOptions.innerHTML = '';
-                data.groups.forEach(g => {
+                
+                // Favorilere göre sırala
+                const favs = getFavorites();
+                const sortedGroups = [...data.groups].sort((a, b) => {
+                    const aFav = favs.includes(a.id);
+                    const bFav = favs.includes(b.id);
+                    if (aFav && !bFav) return -1;
+                    if (!aFav && bFav) return 1;
+                    return 0;
+                });
+
+                sortedGroups.forEach(g => {
+                    const isFav = favs.includes(g.id);
                     const div = document.createElement('div');
                     div.className = 'dropdown-option';
-                    div.innerHTML = `<i class="fas fa-users" style="color: #a855f7;"></i> ${g.name} <span style="opacity: 0.6;">(${g.member_count} üye)</span>`;
+                    div.innerHTML = `
+                        <i class="fas fa-users" style="color: #a855f7;"></i> 
+                        <span style="flex-grow: 1;">${g.name} <span style="opacity: 0.6; font-size: 11px;">(${g.member_count})</span></span>
+                        <i class="fas fa-star fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${g.id}')"></i>
+                    `;
                     div.onclick = function(e) {
                         e.stopPropagation();
                         const textSpan = document.querySelector('#groupDropdown .dropdown-text');
@@ -699,5 +737,7 @@ window.toggleDropdown = toggleDropdown;
 window.selectDropdownOption = selectDropdownOption;
 window.filterDropdown = filterDropdown;
 window.updateDropdownOptions = updateDropdownOptions;
+window.toggleFavorite = toggleFavorite;
 window.fetchSharers = fetchSharers;
 window.handleSharersCheckbox = handleSharersCheckbox;
+
