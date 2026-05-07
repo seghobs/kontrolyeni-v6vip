@@ -1,17 +1,132 @@
+
 function showTokenErrorModal(message) {
     const modal = document.getElementById("tokenErrorModal");
-    document.getElementById("tokenErrorText").textContent = message;
-    modal.classList.add("show");
+    if (modal) {
+        document.getElementById("tokenErrorText").textContent = message;
+        modal.classList.add("show");
+    }
+}
+
+// Global variables for Tag System
+let editingUserIndex = -1;
+
+
+function renderUserTags() {
+    const textarea = document.getElementById("grup_uye");
+    const container = document.getElementById("userTagContainer");
+    const searchWrapper = document.getElementById("tagSearchWrapper");
+    const searchInput = document.getElementById("tagSearchInput");
+    
+    if (!textarea || !container) return;
+
+    const users = textarea.value.split("\n").filter((user) => user.trim() !== "");
+    const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+    // Show/Hide search box based on list presence
+    if (searchWrapper) {
+        searchWrapper.style.display = users.length > 0 ? "block" : "none";
+    }
+
+    container.innerHTML = "";
+
+    users.forEach((user, index) => {
+        // If searching, skip if no match
+        if (searchTerm && !user.toLowerCase().includes(searchTerm)) {
+            return;
+        }
+
+        const tag = document.createElement("div");
+        tag.className = "user-tag";
+        tag.innerHTML = `
+            <i class="fas fa-user-circle"></i>
+            <span>${user}</span>
+            <i class="fas fa-times remove-tag" onclick="removeUserTag(event, ${index})"></i>
+        `;
+        tag.onclick = (e) => {
+            if (!e.target.classList.contains('remove-tag')) {
+                openEditModal(user, index);
+            }
+        };
+        container.appendChild(tag);
+    });
+
+    const userCountDisplay = document.getElementById("user_count");
+    if (userCountDisplay) {
+        userCountDisplay.textContent = users.length + " Adet kullanıcı eklendi.";
+    }
+}
+
+function filterUserTags(val) {
+    renderUserTags();
+}
+
+window.filterUserTags = filterUserTags;
+
+
+function removeUserTag(event, index) {
+    event.stopPropagation();
+    const textarea = document.getElementById("grup_uye");
+    let users = textarea.value.split("\n").filter((user) => user.trim() !== "");
+    users.splice(index, 1);
+    textarea.value = users.join("\n");
+    renderUserTags();
+}
+
+function openEditModal(username, index) {
+    editingUserIndex = index;
+    const modal = document.getElementById("editUserModal");
+    const input = document.getElementById("editUserInput");
+    if (modal && input) {
+        input.value = username;
+        modal.classList.add("show");
+        input.focus();
+    }
+}
+
+function closeEditModal() {
+    const modal = document.getElementById("editUserModal");
+    if (modal) modal.classList.remove("show");
+    editingUserIndex = -1;
+}
+
+function saveEditedUser() {
+    const input = document.getElementById("editUserInput");
+    const textarea = document.getElementById("grup_uye");
+    if (!input || !textarea || editingUserIndex === -1) return;
+
+    const newName = input.value.trim();
+    if (newName) {
+        let users = textarea.value.split("\n").filter((user) => user.trim() !== "");
+        users[editingUserIndex] = newName;
+        textarea.value = users.join("\n");
+        renderUserTags();
+        closeEditModal();
+    }
+}
+
+function addUserFromInput() {
+    const input = document.getElementById("tagAddInput");
+    const textarea = document.getElementById("grup_uye");
+    if (!input || !textarea) return;
+
+    const username = input.value.trim();
+    if (username) {
+        const currentVal = textarea.value.trim();
+        textarea.value = currentVal ? currentVal + "\n" + username : username;
+        input.value = "";
+        renderUserTags();
+    }
 }
 
 function updateUserCount() {
-    const textarea = document.getElementById("grup_uye");
-    const userCountDisplay = document.getElementById("user_count");
-    const users = textarea.value.split("\n").filter((user) => user.trim() !== "");
-    userCountDisplay.textContent = users.length + " Adet kullanici eklendi.";
+    renderUserTags();
 }
 
+window.removeUserTag = removeUserTag;
+window.closeEditModal = closeEditModal;
+window.saveEditedUser = saveEditedUser;
 window.updateUserCount = updateUserCount;
+
 
 // Global değişken - seçili grup ID'si
 let currentThreadId = '';
@@ -72,7 +187,7 @@ function loadGroups() {
                     const div = document.createElement('div');
                     div.className = 'dropdown-option';
                     div.innerHTML = `
-                        <i class="fas fa-users" style="color: #a855f7;"></i> 
+                        <i class="fas fa-users" style="color: var(--accent-caramel);"></i> 
                         <span style="flex-grow: 1;">${g.name} <span style="opacity: 0.6; font-size: 11px;">(${g.member_count})</span></span>
                         <i class="fas fa-star fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite(event, '${g.id}')"></i>
                     `;
@@ -87,6 +202,22 @@ function loadGroups() {
                             hiddenSelect.value = g.id;
                         }
                         currentThreadId = g.id;
+                        
+                        // Form hafif blur animasyonu (1 saniye)
+                        const containerElement = document.querySelector('.container');
+                        if (containerElement) {
+                            containerElement.style.transition = 'filter 0.4s ease, opacity 0.4s ease';
+                            containerElement.style.filter = 'blur(4px)';
+                            containerElement.style.opacity = '0.85';
+                            
+                            setTimeout(() => {
+                                containerElement.style.filter = 'blur(0)';
+                                containerElement.style.opacity = '1';
+                                setTimeout(() => {
+                                    containerElement.style.transition = '';
+                                }, 400);
+                            }, 1000); // 1 saniye sonra açılacak
+                        }
                         
                         // Load members when group is selected - pass threadId directly
                         loadGroupMembers(g.id);
@@ -136,9 +267,16 @@ function loadGroupMembers(threadIdFromDropdown) {
         return;
     }
     
-    if (dropdownText) {
-        dropdownText.textContent = "Üyeler yükleniyor...";
+    toggleGroupLoading(true);
+
+    if (dropdownText && threadId) {
+        // Keep the current text (group name) but add a loading suffix
+        const currentName = dropdownText.textContent;
+        if (!currentName.includes("yükleniyor")) {
+            dropdownText.textContent = `${currentName} (Yükleniyor...)`;
+        }
     }
+
     
     const hiddenSelect = document.getElementById("groupSelect");
     if (hiddenSelect) {
@@ -158,7 +296,13 @@ function loadGroupMembers(threadIdFromDropdown) {
                 return;
             }
             
+
+            if (dropdownText) {
+                dropdownText.textContent = dropdownText.textContent.replace(" (Yükleniyor...)", "");
+            }
+
             if (data.usernames && data.usernames.length > 0) {
+
                 window.fullGroupMembers = data.usernames;
                 const isChecked = document.getElementById("onlySharersCheck")?.checked;
                 if (!isChecked) {
@@ -174,7 +318,12 @@ function loadGroupMembers(threadIdFromDropdown) {
                 hiddenSelect.disabled = false;
             }
             if (dropdownText) dropdownText.textContent = "-- Instagram Grubu Seç --";
+
+            if (dropdownText) {
+                dropdownText.textContent = dropdownText.textContent.replace(" (Yükleniyor...)", "");
+            }
             showTokenErrorModal("Üyeler yüklenemedi: " + err.message);
+
         })
         .finally(() => {
             window.isMembersLoading = false;
@@ -253,6 +402,7 @@ function addPostLink() {
     
     if (link) {
         linkInput.value = link;
+        validateForm();
     }
 }
 
@@ -288,6 +438,7 @@ function addAllPosts() {
     
     // Var olanı silip tamamen yeni yüklenen linkleri basıyoruz
     multiInput.value = urls.join("\n");
+    validateForm();
 }
 
 function loadGroupPosts(threadIdFromMembers) {
@@ -371,6 +522,8 @@ function loadGroupPosts(threadIdFromMembers) {
 function checkAndEnableToggles() {
     if (window.isMembersLoading || window.isPostsLoading) return;
     
+    toggleGroupLoading(false);
+
     const filterWrapper = document.getElementById("sharersFilterWrapper");
     if (filterWrapper) {
         filterWrapper.style.opacity = "1";
@@ -432,6 +585,22 @@ function renderPosts() {
                 postSelect.value = p.url;
                 postSelect.dispatchEvent(new Event('change'));
                 
+                // Form hafif blur animasyonu (1 saniye)
+                const containerElement = document.querySelector('.container');
+                if (containerElement) {
+                    containerElement.style.transition = 'filter 0.4s ease, opacity 0.4s ease';
+                    containerElement.style.filter = 'blur(4px)';
+                    containerElement.style.opacity = '0.85';
+                    
+                    setTimeout(() => {
+                        containerElement.style.filter = 'blur(0)';
+                        containerElement.style.opacity = '1';
+                        setTimeout(() => {
+                            containerElement.style.transition = '';
+                        }, 400);
+                    }, 1000); // 1 saniye sonra açılacak
+                }
+                
                 // Close dropdown
                 document.querySelector('#postDropdown .dropdown-menu').classList.remove('show');
                 document.querySelector('#postDropdown .dropdown-trigger').classList.remove('active');
@@ -458,24 +627,37 @@ window.loadGroups = loadGroups;
 window.loadGroupMembers = loadGroupMembers;
 window.addPostLink = addPostLink;
 
+
 function setCheckMode(mode) {
     window._checkMode = mode === "multi" ? "multi" : "single";
 
     const singleBtn = document.getElementById("modeSingle");
     const multiBtn = document.getElementById("modeMulti");
     const hint = document.getElementById("modeHint");
+    const singleContent = document.getElementById("singleModeContent");
+    const multiContent = document.getElementById("multiModeContent");
     const singleInput = document.getElementById("post_link_single");
     const multiTextarea = document.getElementById("post_link_multi");
-    if (!singleBtn || !multiBtn || !hint || !singleInput || !multiTextarea) return;
+
+    if (!singleBtn || !multiBtn || !hint || !singleContent || !multiContent || !singleInput || !multiTextarea) return;
 
     if (mode === "multi") {
         singleBtn.classList.remove("active");
         multiBtn.classList.add("active");
         hint.textContent = "Toplu kontrol: Her satira bir post/reel linki yazabilirsiniz.";
-        singleInput.style.display = "none";
-        singleInput.disabled = true;
-        multiTextarea.style.display = "block";
-        multiTextarea.disabled = false;
+        
+        // Hide single, Show multi with animation
+        singleContent.classList.remove("active");
+        setTimeout(() => {
+            singleContent.style.display = "none";
+            multiContent.style.display = "block";
+            setTimeout(() => {
+                multiContent.classList.add("active");
+                multiTextarea.disabled = false;
+                singleInput.disabled = true;
+            }, 10);
+        }, 300);
+
         multiTextarea.rows = 4;
         if (!multiTextarea.value.includes("\n")) {
             multiTextarea.placeholder = "Her satira bir post/reel linki yazin\nhttps://www.instagram.com/p/...\nhttps://www.instagram.com/reel/...";
@@ -496,14 +678,72 @@ function setCheckMode(mode) {
         multiBtn.classList.remove("active");
         singleBtn.classList.add("active");
         hint.textContent = "Tekli kontrol: Tek bir post/reel linki gir.";
-        multiTextarea.style.display = "none";
-        multiTextarea.disabled = true;
-        singleInput.style.display = "block";
-        singleInput.disabled = false;
+        
+        // Hide multi, Show single with animation
+        multiContent.classList.remove("active");
+        setTimeout(() => {
+            multiContent.style.display = "none";
+            singleContent.style.display = "block";
+            setTimeout(() => {
+                singleContent.classList.add("active");
+                singleInput.disabled = false;
+                multiTextarea.disabled = true;
+            }, 10);
+        }, 300);
+
         singleInput.placeholder = "https://www.instagram.com/p/...";
         
+
         const postDropdown = document.getElementById("postDropdown");
         if (postDropdown) postDropdown.style.display = "block";
+    }
+    
+    // Update button state for the new mode
+    validateForm();
+}
+
+
+
+
+function validateForm() {
+    const submitBtn = document.getElementById("submitCheckBtn");
+    if (!submitBtn) return;
+
+    let isValid = false;
+    if (window._checkMode === "multi") {
+        const multiInput = document.getElementById("post_link_multi");
+        isValid = multiInput && multiInput.value.trim().length > 0;
+    } else {
+        const singleInput = document.getElementById("post_link_single");
+        isValid = singleInput && singleInput.value.trim().length > 0;
+    }
+
+    // We don't disable the button anymore to allow clicks for feedback
+    if (!isValid) {
+        submitBtn.classList.add("btn-disabled");
+    } else {
+        submitBtn.classList.remove("btn-disabled");
+    }
+}
+
+function showValidationToast() {
+    const toast = document.getElementById("validationToast");
+    if (toast) {
+        toast.classList.add("show");
+        setTimeout(() => {
+            toast.classList.remove("show");
+        }, 3000);
+    }
+}
+
+
+window.validateForm = validateForm;
+
+function toggleGroupLoading(show) {
+
+    const overlay = document.getElementById("groupLoadingOverlay");
+    if (overlay) {
+        overlay.style.display = show ? "flex" : "none";
     }
 }
 
@@ -524,7 +764,102 @@ function setProgressText(text, percent) {
     }
 }
 
+
 document.addEventListener("DOMContentLoaded", () => {
+    // Initial render for tags
+    renderUserTags();
+
+    // Tag System: Add on Enter
+    const tagAddInput = document.getElementById("tagAddInput");
+    if (tagAddInput) {
+        tagAddInput.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                addUserFromInput();
+            }
+        });
+    }
+
+    // Modal behavior: close on click outside
+    window.addEventListener("click", (e) => {
+        const editModal = document.getElementById("editUserModal");
+        if (e.target === editModal) {
+            closeEditModal();
+        }
+    });
+
+
+    // Form validation listeners
+    const singleInput = document.getElementById("post_link_single");
+    const multiInput = document.getElementById("post_link_multi");
+    
+    if (singleInput) singleInput.addEventListener("input", validateForm);
+    if (multiInput) multiInput.addEventListener("input", validateForm);
+
+    // Initial validation
+    validateForm();
+
+
+    // Form submission validation
+    const checkForm = document.getElementById("kontrolForm");
+    if (checkForm) {
+        checkForm.addEventListener("submit", (e) => {
+            const multiInput = document.getElementById("post_link_multi");
+            const singleInput = document.getElementById("post_link_single");
+            
+            let isValid = false;
+            if (window._checkMode === "multi") {
+                isValid = multiInput && multiInput.value.trim().length > 0;
+            } else {
+                isValid = singleInput && singleInput.value.trim().length > 0;
+            }
+
+
+            if (!isValid) {
+                e.preventDefault();
+                showValidationToast();
+                
+                // Target selection: single mode -> postDropdown, multi mode -> groupDropdown
+                const isMulti = window._checkMode === "multi";
+                const dropdownId = isMulti ? "groupDropdown" : "postDropdown";
+                const dropdown = document.getElementById(dropdownId);
+                
+                if (dropdown) {
+                    dropdown.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Add a pulse effect to catch attention
+                    dropdown.classList.add("pulse-highlight");
+                    setTimeout(() => dropdown.classList.remove("pulse-highlight"), 2000);
+
+                    setTimeout(() => {
+                        const menu = dropdown.querySelector('.dropdown-menu');
+                        if (menu && !menu.classList.contains('show')) {
+                            toggleDropdown(dropdownId);
+                        }
+                    }, 600);
+                }
+                return false;
+            }
+
+
+            // If valid, show loading state
+            const submitBtn = document.getElementById("submitCheckBtn");
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Kontrol Ediliyor...';
+            }
+            
+            // Kontrol işlemi boyunca ekranı bulanıklaştır (Sunucu yanıt verip sayfa yönlenene kadar kalır)
+            const containerElement = document.querySelector('.container');
+            if (containerElement) {
+                containerElement.style.transition = 'filter 1.5s ease, opacity 1.5s ease';
+                containerElement.style.filter = 'blur(15px)';
+                containerElement.style.opacity = '0.4';
+            }
+        });
+    }
+
+
     const tokenErrorMessage = document.body.dataset.tokenErrorMessage;
 
     document.getElementById("closeTokenModalBtn").addEventListener("click", () => {
@@ -547,25 +882,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Gruplari otomatik yükle
     loadGroups();
 
-    const form = document.getElementById("checkForm");
-    const submitBtn = document.getElementById("submitCheckBtn");
-    if (form && submitBtn) {
-        form.addEventListener("submit", (e) => {
-            const singleInput = document.getElementById("post_link_single");
-            const multiInput = document.getElementById("post_link_multi");
-            
-            if (!singleInput.value.trim() && !multiInput.value.trim()) {
-                e.preventDefault();
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-search me-2"></i>Kontrol Et';
-                alert("Lütfen en az bir post linki girin.");
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Kontrol Ediliyor...';
-        });
-    }
+
     
     // Close dropdowns when clicking outside
     document.addEventListener('click', function(e) {

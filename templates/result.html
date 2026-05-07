@@ -13,7 +13,7 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/result.css') }}?v={{ range(1, 99999) | random }}">
 </head>
 <body data-rate-limited='{{ "true" if rate_limited else "false" }}'>
@@ -98,7 +98,7 @@
                                         <div class="d-flex align-items-center flex-wrap gap-2 mt-1">
                                             {% if item.sender %}
                                             <span class="badge badge-indigo-outline">
-                                                <span class="d-none d-sm-inline" style="color: #cbd5e1; font-weight: 400; margin-right: 4px;">Gönderi Sahibi:</span><i class="fas fa-user-circle d-inline d-sm-none me-1"></i>@{{ item.sender }}
+                                                <span class="d-none d-sm-inline" style="color: var(--muted-foreground); font-weight: 400; margin-right: 4px;">Gönderi Sahibi:</span><i class="fas fa-user-circle d-inline d-sm-none me-1"></i>@{{ item.sender }}
                                             </span>
                                             {% endif %}
                                             
@@ -154,7 +154,7 @@
                                 <i class="fas fa-grip-vertical me-3 drag-handle" title="Tut ve Sürükle" onclick="event.stopPropagation()"></i>
                                 <div class="header-text-container">
                                     <div class="d-flex align-items-center flex-wrap gap-2">
-                                        <strong style="color: #ffffff; font-size: 18px; letter-spacing: 0.3px; line-height: 1.4; word-break: break-word;">
+                                        <strong style="color: var(--foreground); font-size: 18px; letter-spacing: 0.3px; line-height: 1.4; word-break: break-word;">
                                             <i class="fas fa-user-times me-2" style="color: var(--danger-color);"></i>Eksik Kullanıcı Detaylı Rapor
                                         </strong>
                                         <span class="badge badge-danger-outline">
@@ -203,13 +203,13 @@
                                         <div class="post-link-item">
                                             <div class="d-flex align-items-center gap-2 overflow-hidden">
                                                 <div class="instagram-icon-box">
-                                                    <i class="fab fa-instagram" style="color: #818cf8; font-size: 14px;"></i>
+                                                    <i class="fab fa-instagram" style="color: var(--accent-mocha); font-size: 14px;"></i>
                                                 </div>
                                                 <a href="{{ post }}" target="_blank" onclick="event.stopPropagation();" class="post-link-anchor">
                                                     {{ post }}
                                                 </a>
                                             </div>
-                                            <button class="btn btn-sm" style="background: transparent; border: none; color: var(--text-secondary); padding: 4px; flex-shrink: 0;" onclick="event.stopPropagation(); window.copyToClipboard('{{ post }}')" title="Kopyala" onmouseover="this.style.color='var(--accent-primary)'" onmouseout="this.style.color='var(--text-secondary)'">
+                                            <button class="btn btn-sm" style="background: transparent; border: none; color: var(--muted-foreground); padding: 4px; flex-shrink: 0;" onclick="event.stopPropagation(); window.copyToClipboard('{{ post }}')" title="Kopyala" onmouseover="this.style.color='var(--accent-caramel)'" onmouseout="this.style.color='var(--muted-foreground)'">
                                                 <i class="fas fa-copy" style="font-size: 15px;"></i>
                                             </button>
                                         </div>
@@ -273,7 +273,44 @@
         });
     </script>
 
+
+    <!-- Mobile Bottom Navigation -->
+    <nav class="mobile-bottom-nav">
+        <a href="/" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Anasayfa</span>
+        </a>
+        <a href="/token_al" class="nav-item">
+            <i class="fas fa-key"></i>
+            <span>Token Al</span>
+        </a>
+        <a href="/admin" class="nav-item">
+            <i class="fas fa-user-shield"></i>
+            <span>Admin Panel</span>
+        </a>
+    </nav>
+
     <script src="{{ url_for('static', filename='js/result.js') }}?v={{ range(1, 99999) | random }}"></script>
+    
+    <!-- Page Transition Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    if (this.target === '_blank' || !this.href || this.href.startsWith('javascript:') || this.getAttribute('href').startsWith('#') || this.hasAttribute('download') || this.onclick) return;
+                    if (this.hostname === window.location.hostname) {
+                        e.preventDefault();
+                        const targetUrl = this.href;
+                        document.body.classList.add('page-transitioning-out');
+                        setTimeout(() => {
+                            window.location.href = targetUrl;
+                        }, 350);
+                    }
+                });
+            });
+        });
+    </script>
 </body>
+
 
 </html>
